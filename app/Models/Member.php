@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Member extends Model
+{
+    use HasFactory, SoftDeletes;
+
+     protected $table = 'members';
+
+    protected $fillable = [
+        'business_id',
+        'business_role_id',
+        'name',
+        'date_of_birth',
+        'gender',
+        'email',
+        'phone',
+        'profile_pic',
+        'description',
+        'address',
+        'country_id',
+        'state_id',
+        'city_id',
+        'zip_code',
+        'custom_fields',
+        'status',
+        'created_by',
+        'updated_by',
+    ];
+
+    public $timestamps = true;
+
+    protected $casts = [
+        'custom_fields' => 'array',
+        'date_of_birth' => 'date',
+    ];
+
+    // Relations
+    public function business() {
+        return $this->belongsTo(Business::class);
+    }
+
+    public function role() {
+        return $this->belongsTo(BusinessRole::class, 'business_role_id');
+    }
+
+    public function creator() {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updater() {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+}
