@@ -34,7 +34,7 @@ class Cashbook extends Model
     }
 
     public function entries() {
-        return $this->hasMany(CashInOut::class);
+        return $this->hasMany(Transaction::class);
     }
 
     public function members() {

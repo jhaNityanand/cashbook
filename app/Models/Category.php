@@ -23,8 +23,8 @@ class Category extends Model
     public $timestamps = true;
 
     // Relations
-    public function cashInOuts() {
-        return $this->hasMany(CashInOut::class);
+    public function transactions() {
+        return $this->hasMany(Transaction::class);
     }
 
     public function creator() {
