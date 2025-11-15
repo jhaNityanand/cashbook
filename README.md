@@ -36,7 +36,7 @@ A Laravel + Vue 3 application for managing Businesses with Members and Cashbooks
 
 ```bash
 git clone <repository-url>
-cd cash-book
+cd cashbook
 ```
 
 ### 2. Install PHP dependencies
@@ -74,6 +74,19 @@ DB_PORT=3306
 DB_DATABASE=cash_book
 DB_USERNAME=root
 DB_PASSWORD=
+```
+
+Configure your email in `.env`:
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=mailpit
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
 ```
 
 ### 5. Run migrations
