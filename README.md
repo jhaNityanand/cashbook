@@ -115,7 +115,13 @@ For production:
 npm run build
 ```
 
-### 8. Start the development server
+### 8. Storage Link
+
+```bash
+php artisan storage:link
+```
+
+### 9. Start the development server  
 
 ```bash
 php artisan serve
