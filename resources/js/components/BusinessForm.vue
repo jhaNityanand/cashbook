@@ -115,7 +115,8 @@
           <!-- Location Fields -->
           <div class="md:col-span-2">
             <LocationSelect
-              v-model="location"
+              :model-value="location"
+              @update:model-value="updateLocation"
               :errors="errors"
               :touched="touched"
             />
@@ -137,16 +138,14 @@
 
           <!-- Status -->
           <div>
-            <label class="label-field">Status</label>
-            <select
+            <SearchableSelect
               v-model="form.status"
-              class="input-field"
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="pending">Pending</option>
-              <option value="suspended">Suspended</option>
-            </select>
+              :options="statusOptions"
+              label="Status"
+              placeholder="Select Status"
+              track-by="value"
+              label-key="label"
+            />
           </div>
 
           <!-- Description (Last) -->
@@ -196,6 +195,7 @@ import { useBusinessStore } from '../stores/business';
 import { useValidation } from '../composables/useValidation';
 import LocationSelect from './LocationSelect.vue';
 import FileUpload from './FileUpload.vue';
+import SearchableSelect from './SearchableSelect.vue';
 
 const props = defineProps({
   business: {
@@ -215,6 +215,13 @@ const location = reactive({
   state_id: null,
   city_id: null,
 });
+
+const statusOptions = [
+  { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'suspended', label: 'Suspended' },
+];
 
 const form = reactive({
   name: '',
@@ -253,30 +260,48 @@ onMounted(() => {
       website: props.business.website || '',
       gst_number: props.business.gst_number || '',
       address: props.business.address || '',
-      country_id: props.business.country_id || '',
-      state_id: props.business.state_id || '',
-      city_id: props.business.city_id || '',
+      country_id: props.business.country_id || null,
+      state_id: props.business.state_id || null,
+      city_id: props.business.city_id || null,
       zip_code: props.business.zip_code || '',
       status: props.business.status || 'active',
       description: props.business.description || '',
       logo: props.business.logo || null,
     });
     
-    location.country_id = props.business.country_id;
-    location.state_id = props.business.state_id;
-    location.city_id = props.business.city_id;
+    // Set location values - ensure they're numbers or null
+    location.country_id = props.business.country_id ? Number(props.business.country_id) : null;
+    location.state_id = props.business.state_id ? Number(props.business.state_id) : null;
+    location.city_id = props.business.city_id ? Number(props.business.city_id) : null;
   }
 });
 
+const updateLocation = (newLocation) => {
+  location.country_id = newLocation.country_id;
+  location.state_id = newLocation.state_id;
+  location.city_id = newLocation.city_id;
+  
+  // Also update form for consistency
+  form.country_id = newLocation.country_id !== null ? newLocation.country_id : '';
+  form.state_id = newLocation.state_id !== null ? newLocation.state_id : '';
+  form.city_id = newLocation.city_id !== null ? newLocation.city_id : '';
+};
+
 watch(location, (newVal) => {
-  form.country_id = newVal.country_id;
-  form.state_id = newVal.state_id;
-  form.city_id = newVal.city_id;
-}, { deep: true });
+  form.country_id = newVal.country_id !== null ? newVal.country_id : '';
+  form.state_id = newVal.state_id !== null ? newVal.state_id : '';
+  form.city_id = newVal.city_id !== null ? newVal.city_id : '';
+}, { deep: true, immediate: true });
 
 const handleSubmit = async () => {
   clearErrors();
   error.value = null;
+
+  // Sync location values to form before validation (ensure latest values)
+  // Read directly from location reactive object to get the most current values
+  form.country_id = location.country_id !== null && location.country_id !== '' ? location.country_id : '';
+  form.state_id = location.state_id !== null && location.state_id !== '' ? location.state_id : '';
+  form.city_id = location.city_id !== null && location.city_id !== '' ? location.city_id : '';
 
   // Client-side validation
   if (!validateForm(form, validationRules)) {
@@ -288,10 +313,64 @@ const handleSubmit = async () => {
   try {
     const formData = new FormData();
     
-    Object.keys(form).forEach(key => {
-      if (form[key] !== null && form[key] !== '' && key !== 'logo') {
-        formData.append(key, form[key] || null);
+    // Debug: Log location values before processing
+    console.log('Location values before processing:', {
+      country_id: location.country_id,
+      state_id: location.state_id,
+      city_id: location.city_id,
+      types: {
+        country_id: typeof location.country_id,
+        state_id: typeof location.state_id,
+        city_id: typeof location.city_id,
       }
+    });
+    
+    // First, ensure location values are properly set from the location reactive object
+    // Read directly from location to get the most current values
+    const getLocationId = (value) => {
+      if (value === null || value === undefined || value === '') {
+        return null;
+      }
+      // Convert to number and validate
+      const numValue = typeof value === 'string' ? parseInt(value, 10) : Number(value);
+      return !isNaN(numValue) && numValue > 0 ? numValue : null;
+    };
+    
+    const countryId = getLocationId(location.country_id);
+    const stateId = getLocationId(location.state_id);
+    const cityId = getLocationId(location.city_id);
+    
+    console.log('Processed location IDs:', { countryId, stateId, cityId });
+    
+    // Append all form fields
+    Object.keys(form).forEach(key => {
+      if (key !== 'logo' && !['country_id', 'state_id', 'city_id'].includes(key)) {
+        const value = form[key];
+        if (value !== null && value !== '') {
+          formData.append(key, value);
+        }
+      }
+    });
+    
+    // Explicitly append location fields as strings (FormData converts to string anyway)
+    if (countryId !== null) {
+      formData.append('country_id', String(countryId));
+      console.log('Appended country_id:', String(countryId));
+    }
+    if (stateId !== null) {
+      formData.append('state_id', String(stateId));
+      console.log('Appended state_id:', String(stateId));
+    }
+    if (cityId !== null) {
+      formData.append('city_id', String(cityId));
+      console.log('Appended city_id:', String(cityId));
+    }
+    
+    // Debug: Verify FormData contents
+    console.log('FormData location values:', {
+      country_id: formData.get('country_id'),
+      state_id: formData.get('state_id'),
+      city_id: formData.get('city_id')
     });
     
     // Handle file upload

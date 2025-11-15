@@ -26,6 +26,8 @@ class UpdateCashbookRequest extends FormRequest
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'status' => 'nullable|in:active,inactive,pending,suspended',
+            'member_ids' => 'nullable|array',
+            'member_ids.*' => 'exists:members,id',
         ];
     }
 }

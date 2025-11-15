@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreMemberRequest;
-use App\Http\Requests\UpdateMemberRequest;
-use App\Http\Resources\MemberResource;
-use App\Mail\MemberRegistrationMail;
-use App\Models\Member;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
+use App\Models\Member;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use App\Mail\MemberRegistrationMail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use App\Http\Resources\MemberResource;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\StoreMemberRequest;
+use App\Http\Requests\UpdateMemberRequest;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MemberController extends Controller
 {
@@ -78,7 +79,7 @@ class MemberController extends Controller
         try {
             Mail::to($member->email)->send(new MemberRegistrationMail($member, $password));
         } catch (\Exception $e) {
-            \Log::error('Failed to send member registration email: ' . $e->getMessage());
+            Log::error('Failed to send member registration email: ' . $e->getMessage());
         }
 
         return response()->json([

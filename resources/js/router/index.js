@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Dashboard from '../pages/Dashboard.vue';
 import BusinessList from '../pages/BusinessList.vue';
 import BusinessView from '../pages/BusinessView.vue';
+import CashbookViewPage from '../pages/CashbookViewPage.vue';
 
 const routes = [
   {
@@ -22,6 +23,12 @@ const routes = [
     path: '/businesses/:id',
     name: 'business-view',
     component: BusinessView,
+    props: true,
+  },
+  {
+    path: '/cashbooks/:id',
+    name: 'cashbook-view',
+    component: CashbookViewPage,
     props: true,
   },
 ];

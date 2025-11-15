@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('name');
             $table->date('date_of_birth')->nullable();
             $table->enum('gender', ['male', 'female', 'other'])->nullable();
-            $table->string('email')->unique();
-            $table->string('phone')->nullable()->unique();
+            $table->string('email');
+            $table->string('phone')->nullable();
             $table->string('profile_pic')->nullable();
             $table->text('description')->nullable();
             $table->string('address')->nullable();
@@ -33,6 +33,9 @@ return new class extends Migration
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['business_id', 'email']);
+            $table->unique(['business_id', 'phone']);
         });
     }
 

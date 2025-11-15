@@ -41,7 +41,7 @@
               </span>
             </div>
             <p class="text-gray-600 mb-6">{{ business.description || 'No description provided' }}</p>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div v-if="business.email" class="flex items-center text-gray-600">
                 <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,25 +186,17 @@
       @close="closeCashbookForm"
       @saved="handleCashbookSaved"
     />
-
-    <!-- Cashbook View Modal -->
-    <CashbookView
-      v-if="viewingCashbook"
-      :cashbook="viewingCashbook"
-      @close="closeCashbookView"
-      @saved="handleCashbookSaved"
-    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useBusinessStore } from '../stores/business';
 import { useMemberStore } from '../stores/member';
 import { useCashbookStore } from '../stores/cashbook';
 import MemberForm from '../components/MemberForm.vue';
 import CashbookForm from '../components/CashbookForm.vue';
-import CashbookView from '../components/CashbookView.vue';
 
 const props = defineProps({
   id: {
@@ -213,13 +205,13 @@ const props = defineProps({
   },
 });
 
+const router = useRouter();
 const businessStore = useBusinessStore();
 const memberStore = useMemberStore();
 const cashbookStore = useCashbookStore();
 
 const showMemberForm = ref(false);
 const showCashbookForm = ref(false);
-const viewingCashbook = ref(null);
 const editingMember = ref(null);
 const editingCashbook = ref(null);
 
@@ -246,7 +238,7 @@ const confirmDeleteMember = async (member) => {
 };
 
 const viewCashbook = (cashbook) => {
-  viewingCashbook.value = cashbook;
+  router.push(`/cashbooks/${cashbook.id}`);
 };
 
 const editCashbook = (cashbook) => {
@@ -275,10 +267,6 @@ const closeCashbookForm = () => {
   editingCashbook.value = null;
 };
 
-const closeCashbookView = () => {
-  viewingCashbook.value = null;
-};
-
 const handleMemberSaved = async () => {
   closeMemberForm();
   await businessStore.fetchBusiness(props.id);
@@ -286,7 +274,6 @@ const handleMemberSaved = async () => {
 
 const handleCashbookSaved = async () => {
   closeCashbookForm();
-  closeCashbookView();
   await businessStore.fetchBusiness(props.id);
 };
 </script>

@@ -15,49 +15,46 @@
         </div>
         
         <!-- Status Filter -->
-        <select
-          v-if="showStatusFilter"
-          v-model="localStatusFilter"
-          @change="handleFilter"
-          class="input-field md:w-48"
-        >
-          <option value="">All Status</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-          <option value="pending">Pending</option>
-          <option value="suspended">Suspended</option>
-        </select>
-
-        <!-- Date Range Filter -->
-        <div v-if="showDateFilter" class="flex gap-2 md:w-auto">
-          <input
-            v-model="dateFrom"
-            type="date"
-            @change="handleFilter"
-            class="input-field md:w-40"
-            placeholder="From"
-          />
-          <input
-            v-model="dateTo"
-            type="date"
-            @change="handleFilter"
-            class="input-field md:w-40"
-            placeholder="To"
+        <div v-if="showStatusFilter" class="md:w-48">
+          <SearchableSelect
+            v-model="localStatusFilter"
+            :options="statusOptions"
+            placeholder="All Status"
+            track-by="value"
+            label-key="label"
+            @update:model-value="handleFilter"
           />
         </div>
 
+        <!-- Date Range Filter -->
+        <div v-if="showDateFilter" class="flex gap-2 md:w-auto">
+          <div class="md:w-40">
+            <DatePicker
+              v-model="dateFrom"
+              placeholder="From"
+              @update:model-value="handleFilter"
+            />
+          </div>
+          <div class="md:w-40">
+            <DatePicker
+              v-model="dateTo"
+              placeholder="To"
+              @update:model-value="handleFilter"
+            />
+          </div>
+        </div>
+
         <!-- Per Page -->
-        <select
-          v-model="localPerPage"
-          @change="handlePerPageChange"
-          class="input-field md:w-32"
-        >
-          <option :value="5">5</option>
-          <option :value="10">10</option>
-          <option :value="20">20</option>
-          <option :value="50">50</option>
-          <option :value="100">100</option>
-        </select>
+        <div class="md:w-32">
+          <SearchableSelect
+            v-model="localPerPage"
+            :options="perPageOptions"
+            placeholder="Per Page"
+            track-by="value"
+            label-key="label"
+            @update:model-value="handlePerPageChange"
+          />
+        </div>
       </div>
     </div>
 
@@ -192,6 +189,8 @@
 
 <script setup>
 import { ref, watch } from 'vue';
+import DatePicker from './DatePicker.vue';
+import SearchableSelect from './SearchableSelect.vue';
 
 const props = defineProps({
   columns: {
@@ -276,6 +275,22 @@ const localDateFrom = ref(props.dateFrom);
 const localDateTo = ref(props.dateTo);
 const localPerPage = ref(props.perPage);
 let searchTimeout = null;
+
+const statusOptions = [
+  { value: '', label: 'All Status' },
+  { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'suspended', label: 'Suspended' },
+];
+
+const perPageOptions = [
+  { value: 5, label: '5' },
+  { value: 10, label: '10' },
+  { value: 20, label: '20' },
+  { value: 50, label: '50' },
+  { value: 100, label: '100' },
+];
 
 const handleSearch = () => {
   clearTimeout(searchTimeout);

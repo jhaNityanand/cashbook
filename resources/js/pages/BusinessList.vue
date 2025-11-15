@@ -50,17 +50,16 @@
             class="input-field"
           />
         </div>
-        <select
-          v-model="statusFilter"
-          @change="handleFilter"
-          class="input-field md:w-48"
-        >
-          <option value="">All Status</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-          <option value="pending">Pending</option>
-          <option value="suspended">Suspended</option>
-        </select>
+        <div class="md:w-48">
+          <SearchableSelect
+            v-model="statusFilter"
+            :options="statusOptions"
+            placeholder="All Status"
+            track-by="value"
+            label-key="label"
+            @update:model-value="handleFilter"
+          />
+        </div>
       </div>
     </div>
 
@@ -180,6 +179,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useBusinessStore } from '../stores/business';
 import BusinessForm from '../components/BusinessForm.vue';
+import SearchableSelect from '../components/SearchableSelect.vue';
 
 const businessStore = useBusinessStore();
 const showForm = ref(false);
@@ -187,6 +187,14 @@ const editingBusiness = ref(null);
 const searchQuery = ref('');
 const statusFilter = ref('');
 let searchTimeout = null;
+
+const statusOptions = [
+  { value: '', label: 'All Status' },
+  { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'suspended', label: 'Suspended' },
+];
 
 const businesses = computed(() => businessStore.businesses);
 

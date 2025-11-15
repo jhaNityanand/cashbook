@@ -80,45 +80,37 @@
 
           <!-- Business Role -->
           <div>
-            <label class="label-field">
-              Role <span class="text-red-500">*</span>
-            </label>
-            <select
+            <SearchableSelect
               v-model="form.business_role_id"
+              :options="roles"
+              label="Role"
+              :required="true"
+              :error="errors.business_role_id && touched.business_role_id ? errors.business_role_id : ''"
+              placeholder="Select Role"
               @blur="validateField('business_role_id')"
-              class="input-field"
-              :class="{ 'input-error': errors.business_role_id && touched.business_role_id }"
-            >
-              <option value="">Select Role</option>
-              <option v-for="role in roles" :key="role.id" :value="role.id">
-                {{ role.name }}
-              </option>
-            </select>
+            />
             <span v-if="errors.business_role_id && touched.business_role_id" class="error-message">{{ errors.business_role_id }}</span>
           </div>
 
           <!-- Date of Birth -->
           <div>
-            <label class="label-field">Date of Birth</label>
-            <input
+            <DatePicker
               v-model="form.date_of_birth"
-              type="date"
-              class="input-field"
+              label="Date of Birth"
+              placeholder="Select date of birth"
             />
           </div>
 
           <!-- Gender -->
           <div>
-            <label class="label-field">Gender</label>
-            <select
+            <SearchableSelect
               v-model="form.gender"
-              class="input-field"
-            >
-              <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
+              :options="genderOptions"
+              label="Gender"
+              placeholder="Select Gender"
+              track-by="value"
+              label-key="label"
+            />
           </div>
 
           <!-- Profile Picture -->
@@ -171,16 +163,14 @@
 
           <!-- Status -->
           <div>
-            <label class="label-field">Status</label>
-            <select
+            <SearchableSelect
               v-model="form.status"
-              class="input-field"
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="pending">Pending</option>
-              <option value="suspended">Suspended</option>
-            </select>
+              :options="statusOptions"
+              label="Status"
+              placeholder="Select Status"
+              track-by="value"
+              label-key="label"
+            />
           </div>
 
           <!-- Description -->
@@ -227,6 +217,8 @@ import { useMemberStore } from '../stores/member';
 import { useValidation } from '../composables/useValidation';
 import LocationSelect from './LocationSelect.vue';
 import FileUpload from './FileUpload.vue';
+import DatePicker from './DatePicker.vue';
+import SearchableSelect from './SearchableSelect.vue';
 import axios from 'axios';
 
 const props = defineProps({
@@ -252,6 +244,19 @@ const location = reactive({
   state_id: null,
   city_id: null,
 });
+
+const genderOptions = [
+  { value: 'male', label: 'Male' },
+  { value: 'female', label: 'Female' },
+  { value: 'other', label: 'Other' },
+];
+
+const statusOptions = [
+  { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'suspended', label: 'Suspended' },
+];
 
 const form = reactive({
   business_id: props.businessId,

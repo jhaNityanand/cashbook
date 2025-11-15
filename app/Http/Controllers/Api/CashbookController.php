@@ -49,7 +49,16 @@ class CashbookController extends Controller
         $data = $request->validated();
         $data['created_by'] = auth()->id();
 
+        $memberIds = $data['member_ids'] ?? [];
+        unset($data['member_ids']);
+
         $cashbook = Cashbook::create($data);
+
+        // Sync members if provided
+        if (!empty($memberIds)) {
+            $cashbook->members()->sync($memberIds);
+        }
+
         $cashbook->load(['business', 'entries', 'members']);
 
         return response()->json([
@@ -78,7 +87,16 @@ class CashbookController extends Controller
         $data = $request->validated();
         $data['updated_by'] = auth()->id();
 
+        $memberIds = $data['member_ids'] ?? null;
+        unset($data['member_ids']);
+
         $cashbook->update($data);
+
+        // Sync members if provided
+        if ($memberIds !== null) {
+            $cashbook->members()->sync($memberIds);
+        }
+
         $cashbook->load(['business', 'entries', 'members']);
 
         return response()->json([
