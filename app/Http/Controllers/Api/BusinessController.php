@@ -62,17 +62,6 @@ class BusinessController extends Controller
             $data['logo'] = $request->file('logo')->store('businesses/logos', 'public');
         }
 
-        // Ensure location fields are properly set (convert empty strings to null)
-        if (isset($data['country_id'])) {
-            $data['country_id'] = !empty($data['country_id']) ? (int)$data['country_id'] : null;
-        }
-        if (isset($data['state_id'])) {
-            $data['state_id'] = !empty($data['state_id']) ? (int)$data['state_id'] : null;
-        }
-        if (isset($data['city_id'])) {
-            $data['city_id'] = !empty($data['city_id']) ? (int)$data['city_id'] : null;
-        }
-
         $data['created_by'] = auth()->id();
 
         $business = Business::create($data);
@@ -89,7 +78,7 @@ class BusinessController extends Controller
      */
     public function show(Business $business): BusinessResource
     {
-        $business->load(['country', 'state', 'city', 'members', 'cashbooks', 'cashbooks.members', 'creator']);
+        $business->load(['country', 'state', 'city', 'members', 'members.businessRole', 'cashbooks', 'cashbooks.members', 'creator']);
 
         return new BusinessResource($business);
     }
@@ -108,17 +97,6 @@ class BusinessController extends Controller
                 Storage::disk('public')->delete($business->logo);
             }
             $data['logo'] = $request->file('logo')->store('businesses/logos', 'public');
-        }
-
-        // Ensure location fields are properly set (convert empty strings to null)
-        if (isset($data['country_id'])) {
-            $data['country_id'] = !empty($data['country_id']) ? (int)$data['country_id'] : null;
-        }
-        if (isset($data['state_id'])) {
-            $data['state_id'] = !empty($data['state_id']) ? (int)$data['state_id'] : null;
-        }
-        if (isset($data['city_id'])) {
-            $data['city_id'] = !empty($data['city_id']) ? (int)$data['city_id'] : null;
         }
 
         $data['updated_by'] = auth()->id();
